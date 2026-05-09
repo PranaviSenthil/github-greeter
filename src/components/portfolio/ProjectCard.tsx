@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@/data/projects";
+import { LazyImage } from "@/components/animation/LazyImage";
 
 export function ProjectCard({ project, tall = false }: { project: Project; tall?: boolean }) {
   return (
@@ -11,13 +12,13 @@ export function ProjectCard({ project, tall = false }: { project: Project; tall?
         tall ? "row-span-2 aspect-[3/4]" : "aspect-[4/3]"
       }`}
     >
-      <img
+      <LazyImage
         src={project.cover}
         alt={project.title}
-        loading="lazy"
         width={1536}
         height={1024}
-        className="absolute inset-0 size-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
+        wrapperClassName="absolute inset-0"
+        className="size-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/30 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100" />
       <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">

@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
 import { Compass, Gem, Layers, Sparkle } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ScrollReveal, ScrollStagger } from "@/components/animation/ScrollReveal";
 
 const values = [
   {
@@ -25,24 +26,12 @@ const values = [
 ];
 
 export function ValueSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => e.isIntersecting && setActive(true),
-      { threshold: 0.2 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
+  const reduce = useReducedMotion();
   return (
-    <section ref={ref} className="relative py-32">
+    <section className="relative py-32">
       <div className="mx-auto max-w-7xl px-6 md:px-10">
         <div className="grid gap-16 lg:grid-cols-12">
-          <div className="lg:col-span-5">
+          <ScrollReveal className="lg:col-span-5">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
               The Studio Philosophy
             </p>
@@ -54,14 +43,21 @@ export function ValueSection() {
               An ultra-premium digital presence positions your studio in the same conversation as
               the clients you want to attract. It is the first space you design for them.
             </p>
-          </div>
+          </ScrollReveal>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:col-span-7">
-            {values.map(({ icon: Icon, title, body }, i) => (
-              <div
+          <ScrollStagger className="grid gap-6 sm:grid-cols-2 lg:col-span-7" stagger={0.12}>
+            {values.map(({ icon: Icon, title, body }) => (
+              <motion.div
                 key={title}
+                variants={{
+                  hidden: { opacity: 0, y: reduce ? 0 : 30 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.7, ease: [0.2, 0.8, 0.2, 1] },
+                  },
+                }}
                 className="group relative overflow-hidden rounded-2xl border border-warm-white/10 bg-card/50 p-8 transition-all duration-500 hover:-translate-y-1 hover:border-gold/40 hover:bg-card"
-                style={{ animation: active ? `fadeUp .8s ${i * 120}ms both` : undefined }}
               >
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <div className="grid size-12 place-items-center rounded-xl bg-gold/10 text-gold transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110">
@@ -69,12 +65,12 @@ export function ValueSection() {
                 </div>
                 <h3 className="mt-6 font-display text-xl text-warm-white">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-warm-white/65">{body}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </ScrollStagger>
         </div>
       </div>
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}`}</style>
     </section>
   );
 }
+
