@@ -9,6 +9,10 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { BackToTop } from "@/components/layout/BackToTop";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -72,11 +76,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "YOUR BRAND — Ultra-Premium Interior Design Studio" },
+      { name: "description", content: "Cinematic interiors crafted by an award-winning luxury design studio. Residential, commercial, and bespoke spaces." },
+      { name: "author", content: "YOUR BRAND" },
+      { property: "og:title", content: "YOUR BRAND — Ultra-Premium Interior Design Studio" },
+      { property: "og:description", content: "Cinematic interiors crafted by an award-winning luxury design studio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
@@ -113,7 +117,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="relative min-h-screen bg-background text-foreground">
+        <Header />
+        <main>
+          <Outlet />
+        </main>
+        <Footer />
+        <BackToTop />
+        <Toaster theme="dark" position="bottom-right" />
+      </div>
     </QueryClientProvider>
   );
 }

@@ -1,26 +1,39 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Hero } from "@/components/home/Hero";
+import { BeforeAfter } from "@/components/home/BeforeAfter";
+import { Stats } from "@/components/home/Stats";
+import { Testimonials } from "@/components/home/Testimonials";
+import { ValueSection } from "@/components/home/ValueSection";
+import { PortfolioPreview } from "@/components/home/PortfolioPreview";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "YOUR BRAND — Cinematic Interior Design Studio" },
+      {
+        name: "description",
+        content:
+          "An ultra-premium interior design studio crafting cinematic, transformative spaces for discerning clients.",
+      },
+      { property: "og:title", content: "YOUR BRAND — Cinematic Interior Design Studio" },
+      {
+        property: "og:description",
+        content: "Cinematic interiors crafted by an award-winning luxury design studio.",
+      },
+    ],
+  }),
+  component: HomePage,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function HomePage() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <>
+      <Hero />
+      <BeforeAfter />
+      <PortfolioPreview />
+      <Stats />
+      <Testimonials />
+      <ValueSection />
+    </>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
