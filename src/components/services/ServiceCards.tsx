@@ -1,4 +1,6 @@
 import { Compass, Home, Building2, Sparkles, Sofa, Palette } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ScrollReveal, ScrollStagger } from "@/components/animation/ScrollReveal";
 
 const services = [
   { icon: Compass, title: "Concept & Direction", body: "Strategic art direction translating your vision into a coherent design language.", from: "Discovery" },
@@ -10,20 +12,25 @@ const services = [
 ];
 
 export function ServiceCards() {
+  const reduce = useReducedMotion();
   return (
     <section className="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-32">
-      <div className="mb-14 max-w-2xl">
+      <ScrollReveal className="mb-14 max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">What we do</p>
         <h2 className="mt-3 font-display text-4xl tracking-tight text-warm-white md:text-5xl">
           A complete design <span className="font-serif italic text-gold-gradient">practice</span>
         </h2>
-      </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {services.map((s, i) => (
-          <article
+      </ScrollReveal>
+      <ScrollStagger className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {services.map((s) => (
+          <motion.article
             key={s.title}
-            className="glass group relative overflow-hidden rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1 hover:border-gold/30"
-            style={{ animation: `fadeUp .8s ${i * 80}ms both` }}
+            variants={{
+              hidden: { opacity: 0, y: reduce ? 0 : 24, filter: reduce ? "none" : "blur(6px)" },
+              visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: [0.2, 0.8, 0.2, 1] } },
+            }}
+            whileHover={reduce ? {} : { y: -6 }}
+            className="glass group relative overflow-hidden rounded-2xl p-8 transition-colors duration-500 hover:border-gold/30"
           >
             <div className="absolute -right-12 -top-12 size-40 rounded-full bg-gold/10 opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-100" />
             <s.icon className="size-7 text-gold" strokeWidth={1.4} />
@@ -33,10 +40,9 @@ export function ServiceCards() {
               <span className="text-warm-white/50">{s.from}</span>
               <span className="text-gold transition-transform duration-300 group-hover:translate-x-1">→</span>
             </div>
-          </article>
+          </motion.article>
         ))}
-      </div>
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}`}</style>
+      </ScrollStagger>
     </section>
   );
 }

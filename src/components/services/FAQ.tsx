@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ScrollReveal } from "@/components/animation/ScrollReveal";
 
 const faqs = [
   { q: "What is the typical project timeline?", a: "Residential projects span 9–18 months from brief to install. Commercial and hospitality work typically runs 12–24 months. We provide a detailed schedule after the discovery phase." },
@@ -14,12 +15,12 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
     <section className="mx-auto max-w-4xl px-6 py-24 md:px-10 md:py-32">
-      <div className="mb-12 text-center">
+      <ScrollReveal className="mb-12 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">FAQ</p>
         <h2 className="mt-3 font-display text-4xl tracking-tight text-warm-white md:text-5xl">
           Questions, <span className="font-serif italic text-gold-gradient">answered.</span>
         </h2>
-      </div>
+      </ScrollReveal>
       <div className="divide-y divide-warm-white/5 border-y border-warm-white/5">
         {faqs.map((f, i) => {
           const isOpen = open === i;
