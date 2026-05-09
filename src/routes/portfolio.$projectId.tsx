@@ -5,6 +5,10 @@ import { PageBreadcrumb } from "@/components/layout/PageBreadcrumb";
 import { Compare } from "@/components/portfolio/Compare";
 import { Lightbox } from "@/components/portfolio/Lightbox";
 import { RelatedProjects } from "@/components/portfolio/RelatedProjects";
+import { LazyImage } from "@/components/animation/LazyImage";
+import { ScrollReveal, ScrollStagger } from "@/components/animation/ScrollReveal";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import { getProject, projects } from "@/data/projects";
 
 export const Route = createFileRoute("/portfolio/$projectId")({
