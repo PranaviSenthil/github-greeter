@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { ScrollReveal } from "@/components/animation/ScrollReveal";
 
 const steps = [
   { n: "01", title: "Discovery", body: "We listen. Site visits, lifestyle interviews, mood references — building the brief together." },
@@ -10,41 +12,36 @@ const steps = [
 ];
 
 export function ProcessTimeline() {
+  const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => e.isIntersecting && (setVisible(true), io.disconnect()),
-      { threshold: 0.15 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   return (
-    <section className="relative bg-gradient-to-b from-charcoal to-charcoal/80 py-24 md:py-32">
-      <div ref={ref} className="mx-auto max-w-7xl px-6 md:px-10">
-        <div className="mb-16 max-w-2xl">
+    <section ref={ref} className="relative overflow-hidden bg-gradient-to-b from-charcoal to-charcoal/80 py-24 md:py-32">
+      <motion.div
+        aria-hidden
+        style={{ y: reduce ? 0 : y }}
+        className="pointer-events-none absolute -right-32 top-20 size-[28rem] rounded-full bg-gold/5 blur-3xl"
+      />
+      <div className="mx-auto max-w-7xl px-6 md:px-10">
+        <ScrollReveal className="mb-16 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">Our process</p>
           <h2 className="mt-3 font-display text-4xl tracking-tight text-warm-white md:text-5xl">
             Six steps,<br />
             <span className="font-serif italic text-gold-gradient">one rhythm.</span>
           </h2>
-        </div>
+        </ScrollReveal>
 
         <ol className="relative grid gap-px md:grid-cols-2">
           {steps.map((s, i) => (
-            <li
+            <motion.li
               key={s.n}
+              initial={{ opacity: 0, y: reduce ? 0 : 24, filter: reduce ? "none" : "blur(6px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
               className="group relative border-b border-warm-white/5 py-10 transition-colors hover:bg-warm-white/[0.02] md:px-10"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(20px)",
-                transition: `opacity .8s ${i * 100}ms, transform .8s ${i * 100}ms`,
-              }}
             >
               <div className="flex items-baseline gap-6">
                 <span className="font-serif text-3xl italic text-gold/60 transition-colors group-hover:text-gold">{s.n}</span>
@@ -53,7 +50,7 @@ export function ProcessTimeline() {
                   <p className="mt-3 max-w-md text-sm leading-relaxed text-warm-white/65">{s.body}</p>
                 </div>
               </div>
-            </li>
+            </motion.li>
           ))}
         </ol>
       </div>

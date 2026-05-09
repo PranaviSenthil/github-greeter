@@ -1,4 +1,6 @@
 import { Award } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ScrollReveal, ScrollStagger } from "@/components/animation/ScrollReveal";
 
 const awards = [
   { year: "2025", title: "AD100", org: "Architectural Digest" },
@@ -10,10 +12,11 @@ const awards = [
 ];
 
 export function Awards() {
+  const reduce = useReducedMotion();
   return (
     <section className="bg-charcoal/80 py-24 md:py-28">
       <div className="mx-auto max-w-7xl px-6 md:px-10">
-        <div className="mb-12 flex items-end justify-between gap-6">
+        <ScrollReveal className="mb-12 flex items-end justify-between gap-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">Recognition</p>
             <h2 className="mt-3 font-display text-3xl tracking-tight text-warm-white md:text-4xl">
@@ -21,16 +24,23 @@ export function Awards() {
             </h2>
           </div>
           <Award className="size-10 text-gold/40" strokeWidth={1.2} />
-        </div>
-        <ul className="grid grid-cols-1 gap-px bg-warm-white/5 md:grid-cols-3">
+        </ScrollReveal>
+        <ScrollStagger as="ul" className="grid grid-cols-1 gap-px bg-warm-white/5 md:grid-cols-3" stagger={0.06}>
           {awards.map((a) => (
-            <li key={a.year + a.title} className="group bg-charcoal p-8 transition-colors hover:bg-warm-white/[0.02]">
+            <motion.li
+              key={a.year + a.title}
+              variants={{
+                hidden: { opacity: 0, y: reduce ? 0 : 16 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              className="group bg-charcoal p-8 transition-colors hover:bg-warm-white/[0.02]"
+            >
               <p className="font-serif text-2xl italic text-gold-gradient">{a.year}</p>
               <p className="mt-2 font-display text-lg text-warm-white">{a.title}</p>
               <p className="mt-1 text-xs uppercase tracking-[0.2em] text-warm-white/55">{a.org}</p>
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </ScrollStagger>
       </div>
     </section>
   );
