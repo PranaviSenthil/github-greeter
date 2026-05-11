@@ -85,6 +85,19 @@
   --shadow-elegant: 0 30px 80px -30px oklch(0 0 0 / 0.6);
 }
 
+@keyframes heroPan {
+  from { transform: scale(1.18) translateY(2%); }
+  to { transform: scale(1.05) translateY(0); }
+}
+@keyframes reveal {
+  from { transform: translateY(110%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
 @layer base {
   * { border-color: var(--color-border); }
 
