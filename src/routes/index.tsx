@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/components/home/Hero";
+import { Marquee } from "@/components/home/Marquee";
 import { BeforeAfter } from "@/components/home/BeforeAfter";
 import { Stats } from "@/components/home/Stats";
 import { Testimonials } from "@/components/home/Testimonials";
 import { ValueSection } from "@/components/home/ValueSection";
 import { PortfolioPreview } from "@/components/home/PortfolioPreview";
+import { CTASection } from "@/components/home/CTASection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,11 +31,13 @@ function HomePage() {
   return (
     <>
       <Hero />
+      <Marquee />
       <BeforeAfter />
       <PortfolioPreview />
       <Stats />
       <Testimonials />
       <ValueSection />
+      <CTASection />
     </>
   );
 }

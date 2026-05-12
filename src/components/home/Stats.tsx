@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Award, Building2, Globe2, Sparkles } from "lucide-react";
+import { ScrollReveal } from "@/components/animation/ScrollReveal";
 
 const stats = [
   { icon: Building2, value: 240, suffix: "+", label: "Projects delivered" },
@@ -47,25 +48,29 @@ export function Stats() {
   }, []);
 
   return (
-    <section ref={ref} className="relative py-32">
+    <section className="relative py-32 overflow-hidden">
+      {/* subtle background accent */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,oklch(0.78_0.13_85/0.04),transparent)]" />
+
       <div className="mx-auto max-w-7xl px-6 md:px-10">
-        <div className="mb-14 max-w-2xl">
+        <ScrollReveal className="mb-14 max-w-2xl">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
             By the Numbers
           </p>
           <h2 className="font-display text-4xl tracking-tight text-warm-white md:text-5xl">
             Twelve years of <span className="font-serif italic text-gold-gradient">quiet impact</span>.
           </h2>
-        </div>
+        </ScrollReveal>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div ref={ref} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map(({ icon: Icon, value, suffix, label }, i) => (
             <div
               key={label}
               className="glass group relative overflow-hidden rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1 hover:border-gold/40"
-              style={{ animation: active ? `fadeUp .8s ${i * 120}ms both` : undefined }}
+              style={active ? { animation: `fadeUp .8s ${i * 120}ms both` } : { opacity: 0 }}
             >
               <div className="absolute -right-6 -top-6 size-24 rounded-full bg-gold/10 blur-2xl transition-opacity group-hover:opacity-100" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               <Icon className="size-7 text-gold" />
               <div className="mt-6 font-display text-5xl text-warm-white">
                 <Counter value={value} suffix={suffix} active={active} />
@@ -77,7 +82,6 @@ export function Stats() {
           ))}
         </div>
       </div>
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}`}</style>
     </section>
   );
 }
