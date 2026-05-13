@@ -16,20 +16,16 @@ export const Route = createFileRoute("/portfolio")({
 
 function PortfolioPage() {
   return (
-    <div className="overflow-x-hidden">
-      <div className="mx-auto max-w-7xl px-6 pt-40 md:px-10">
-        <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Portfolio" }]} />
-        <h1 className="mt-8 max-w-3xl font-display text-5xl tracking-tight text-warm-white md:text-7xl">
-          Selected <span className="font-serif italic text-gold-gradient">Works</span>
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg text-warm-white/70">
-          A growing archive of residences, retreats, and commercial environments designed with material restraint and cinematic atmosphere.
-        </p>
-      </div>
-
-      <div className="pb-32">
-        <PortfolioGrid />
-      </div>
-    </div>
+    <section className="mx-auto max-w-7xl px-6 pt-40 pb-32 md:px-10">
+      <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Portfolio" }]} />
+      <h1 className="mt-8 max-w-3xl font-display text-5xl tracking-tight text-warm-white md:text-7xl">
+        Selected <span className="font-serif italic text-gold-gradient">Works</span>
+      </h1>
+      <p className="mt-6 max-w-2xl text-lg text-warm-white/70">
+        A growing archive of residences, retreats, and commercial environments designed with
+        material restraint and cinematic atmosphere.
+      </p>
+      <PortfolioGrid />
+    </section>
   );
 }

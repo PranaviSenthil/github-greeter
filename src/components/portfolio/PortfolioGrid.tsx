@@ -1,21 +1,24 @@
 import { useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { categories, projects, type ProjectCategory } from "@/data/projects";
 import { LazyImage } from "@/components/animation/LazyImage";
+import { ProjectCard } from "./ProjectCard";
 
+// ─── Card used inside marquee rows ────────────────────────────────────────────
 function MarqueeCard({ project }: { project: (typeof projects)[0] }) {
   return (
     <Link
       to="/portfolio/$projectId"
       params={{ projectId: project.slug }}
-      className="group relative block w-80 shrink-0 aspect-[4/3] overflow-hidden rounded-2xl border border-warm-white/10 bg-charcoal"
+      className="group relative block shrink-0 w-[300px] aspect-[4/3] overflow-hidden rounded-2xl border border-warm-white/10 bg-charcoal"
     >
       <LazyImage
         src={project.cover}
         alt={project.title}
-        width={640}
-        height={480}
+        width={600}
+        height={450}
         wrapperClassName="absolute inset-0"
         className="size-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
       />
@@ -38,42 +41,83 @@ function MarqueeCard({ project }: { project: (typeof projects)[0] }) {
   );
 }
 
+// ─── Single infinite marquee row ──────────────────────────────────────────────
+// Container is exactly 3 cards wide (3×300 + 2×20 = 940px) with overflow-hidden
 function MarqueeRow({
   items,
   direction,
   duration,
 }: {
-  items: (typeof projects);
+  items: typeof projects;
   direction: "right" | "left";
   duration: number;
 }) {
   const doubled = [...items, ...items];
 
   return (
-    <div className="group relative w-full overflow-hidden">
+    // outer: clips to ~3 cards wide, centered
+    <div className="mx-auto w-full max-w-[960px] overflow-hidden rounded-2xl relative group">
+      {/* scrolling track */}
       <div
-        className="flex gap-5 w-max"
+        className="flex gap-5 w-max group-hover:[animation-play-state:paused]"
         style={{
           animation: `${direction === "right" ? "portfolioRight" : "portfolioLeft"} ${duration}s linear infinite`,
         }}
       >
         {doubled.map((project, i) => (
-          <div
-            key={`${project.slug}-${i}`}
-            className="group-hover:[animation-play-state:paused]"
-            style={{ animationPlayState: "inherit" }}
-          >
-            <MarqueeCard project={project} />
-          </div>
+          <MarqueeCard key={`${project.slug}-${i}`} project={project} />
         ))}
       </div>
 
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-charcoal to-transparent z-10" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-charcoal to-transparent z-10" />
+      {/* soft edge fades */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-charcoal to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-charcoal to-transparent z-10" />
     </div>
   );
 }
 
+// ─── Two-row marquee section (All Works only) ─────────────────────────────────
+function MarqueeSection({ items }: { items: typeof projects }) {
+  const row2 = useMemo(() => [...items].reverse(), [items]);
+  const duration = Math.max(25, items.length * 4);
+
+  return (
+    <div className="mt-10 flex flex-col gap-5">
+      <MarqueeRow items={items} direction="right" duration={duration} />
+      <MarqueeRow items={row2} direction="left" duration={duration} />
+    </div>
+  );
+}
+
+// ─── Static grid section (Residential / Commercial / Luxury) ──────────────────
+function StaticGrid({ items }: { items: typeof projects }) {
+  const reduce = useReducedMotion();
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={items.map((p) => p.slug).join(",")}
+        initial={{ opacity: 0, y: reduce ? 0 : 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
+        className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+      >
+        {items.map((p, i) => (
+          <motion.div
+            key={p.slug}
+            initial={{ opacity: 0, y: reduce ? 0 : 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: i * 0.07, ease: [0.2, 0.8, 0.2, 1] }}
+          >
+            <ProjectCard project={p} />
+          </motion.div>
+        ))}
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// ─── Main export ──────────────────────────────────────────────────────────────
 export function PortfolioGrid() {
   const [filter, setFilter] = useState<"all" | ProjectCategory>("all");
 
@@ -82,13 +126,10 @@ export function PortfolioGrid() {
     [filter],
   );
 
-  const row2 = useMemo(() => [...filtered].reverse(), [filtered]);
-
-  const duration = Math.max(20, filtered.length * 4);
-
   return (
-    <div>
-      <div className="mx-auto max-w-7xl px-6 md:px-10 mt-12 flex flex-wrap items-center gap-2">
+    <div className="mt-12">
+      {/* Filter tabs */}
+      <div className="flex flex-wrap items-center gap-2">
         {categories.map((c) => {
           const active = c.id === filter;
           return (
@@ -107,10 +148,12 @@ export function PortfolioGrid() {
         })}
       </div>
 
-      <div className="mt-8 flex flex-col gap-5">
-        <MarqueeRow items={filtered} direction="right" duration={duration} />
-        <MarqueeRow items={row2} direction="left" duration={duration} />
-      </div>
+      {/* Marquee for "All Works", static grid for category filters */}
+      {filter === "all" ? (
+        <MarqueeSection items={filtered} />
+      ) : (
+        <StaticGrid items={filtered} />
+      )}
     </div>
   );
 }
