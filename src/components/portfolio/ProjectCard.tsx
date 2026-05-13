@@ -3,14 +3,12 @@ import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@/data/projects";
 import { LazyImage } from "@/components/animation/LazyImage";
 
-export function ProjectCard({ project, tall = false }: { project: Project; tall?: boolean }) {
+export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       to="/portfolio/$projectId"
       params={{ projectId: project.slug }}
-      className={`group relative block overflow-hidden rounded-2xl border border-warm-white/10 bg-charcoal ${
-        tall ? "row-span-2 aspect-[3/4]" : "aspect-[4/3]"
-      }`}
+      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-warm-white/10 bg-charcoal"
     >
       <LazyImage
         src={project.cover}

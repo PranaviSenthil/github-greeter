@@ -82,7 +82,7 @@ function PortfolioItems({ items, filter }: { items: typeof projects; filter: str
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: reduce ? 0 : -8 }}
         transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-        className="mt-10 grid grid-flow-row-dense auto-rows-auto grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+        className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
       >
         {items.map((p, i) => (
           <motion.div
@@ -90,9 +90,8 @@ function PortfolioItems({ items, filter }: { items: typeof projects; filter: str
             initial={{ opacity: 0, y: reduce ? 0 : 24, filter: reduce ? "none" : "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.6, delay: i * 0.06, ease: [0.2, 0.8, 0.2, 1] }}
-            className={i % 5 === 0 && p.weight === 2 ? "lg:row-span-2" : ""}
           >
-            <ProjectCard project={p} tall={i % 5 === 0 && p.weight === 2} />
+            <ProjectCard project={p} />
           </motion.div>
         ))}
       </motion.div>
