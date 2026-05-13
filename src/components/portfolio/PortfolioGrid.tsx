@@ -6,7 +6,7 @@ import { categories, projects, type ProjectCategory } from "@/data/projects";
 import { LazyImage } from "@/components/animation/LazyImage";
 import { ProjectCard } from "./ProjectCard";
 
-// ─── Golden spark canvas (side areas only) ────────────────────────────────────
+// ─── Golden glowing dot particles — identical to homepage (side areas only) ───
 function SparkCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -19,121 +19,85 @@ function SparkCanvas() {
     let animId: number;
     let W = 0, H = 0;
 
-    // Width of the centered marquee container (960px), so side areas = (W - 960) / 2
     const MARQUEE_W = 960;
+    const PARTICLE_COUNT = 90;
 
-    type Spark = {
+    type Particle = {
       x: number; y: number;
       vx: number; vy: number;
-      size: number;
+      r: number;
       alpha: number;
       alphaDir: number;
       alphaSpeed: number;
-      rot: number;
-      rotSpeed: number;
     };
 
-    const SPARK_COUNT = 55;
-    let sparks: Spark[] = [];
-    const rand = (a: number, b: number) => Math.random() * (b - a) + a;
+    let particles: Particle[] = [];
+    const rand = (min: number, max: number) => Math.random() * (max - min) + min;
 
-    // Place sparks only in side strips
+    // Spawn only in the left/right strips beside the centered 960px carousel
     const spawnX = (): number => {
       const sideW = Math.max(0, (W - MARQUEE_W) / 2);
-      if (sideW < 20) return rand(0, W); // if no room, scatter anywhere
-      return Math.random() < 0.5
-        ? rand(0, sideW)                  // left strip
-        : rand(W - sideW, W);             // right strip
+      if (sideW < 20) return rand(0, W);
+      return Math.random() < 0.5 ? rand(0, sideW) : rand(W - sideW, W);
     };
 
-    const initSpark = (): Spark => ({
+    const initParticle = (): Particle => ({
       x: spawnX(),
       y: rand(0, H),
-      vx: rand(-0.12, 0.12),
-      vy: rand(-0.6, -0.18),
-      size: rand(2.5, 6),
-      alpha: rand(0.1, 0.65),
+      vx: rand(-0.18, 0.18),
+      vy: rand(-0.35, -0.08),
+      r: rand(0.8, 2.6),
+      alpha: rand(0.1, 0.7),
       alphaDir: Math.random() > 0.5 ? 1 : -1,
-      alphaSpeed: rand(0.004, 0.012),
-      rot: rand(0, Math.PI),
-      rotSpeed: rand(-0.015, 0.015),
+      alphaSpeed: rand(0.003, 0.009),
     });
-
-    const drawSpark = (s: Spark) => {
-      ctx.save();
-      ctx.translate(s.x, s.y);
-      ctx.rotate(s.rot);
-
-      // outer glow
-      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, s.size * 4);
-      glow.addColorStop(0, `oklch(0.82 0.13 85 / ${s.alpha * 0.9})`);
-      glow.addColorStop(0.5, `oklch(0.78 0.13 85 / ${s.alpha * 0.3})`);
-      glow.addColorStop(1, `oklch(0.78 0.13 85 / 0)`);
-      ctx.beginPath();
-      ctx.arc(0, 0, s.size * 4, 0, Math.PI * 2);
-      ctx.fillStyle = glow;
-      ctx.fill();
-
-      // 4-point star
-      const r = s.size;
-      const inner = r * 0.28;
-      ctx.beginPath();
-      for (let i = 0; i < 8; i++) {
-        const angle = (i * Math.PI) / 4 - Math.PI / 2;
-        const radius = i % 2 === 0 ? r : inner;
-        const px = Math.cos(angle) * radius;
-        const py = Math.sin(angle) * radius;
-        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-      }
-      ctx.closePath();
-      ctx.fillStyle = `oklch(0.9 0.10 85 / ${s.alpha})`;
-      ctx.fill();
-
-      // bright centre dot
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 0.18, 0, Math.PI * 2);
-      ctx.fillStyle = `oklch(0.97 0.06 85 / ${Math.min(1, s.alpha * 1.4)})`;
-      ctx.fill();
-
-      ctx.restore();
-    };
 
     const resize = () => {
       W = canvas.offsetWidth;
       H = canvas.offsetHeight;
       canvas.width = W;
       canvas.height = H;
-      sparks = Array.from({ length: SPARK_COUNT }, initSpark);
+      particles = Array.from({ length: PARTICLE_COUNT }, initParticle);
     };
 
-    const tick = () => {
+    const draw = () => {
       ctx.clearRect(0, 0, W, H);
 
-      for (const s of sparks) {
-        s.x += s.vx;
-        s.y += s.vy;
-        s.rot += s.rotSpeed;
-        s.alpha += s.alphaDir * s.alphaSpeed;
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha += p.alphaDir * p.alphaSpeed;
 
-        if (s.alpha <= 0.05) { s.alpha = 0.05; s.alphaDir = 1; }
-        if (s.alpha >= 0.70) { s.alpha = 0.70; s.alphaDir = -1; }
+        if (p.alpha <= 0.05) { p.alpha = 0.05; p.alphaDir = 1; }
+        if (p.alpha >= 0.75) { p.alpha = 0.75; p.alphaDir = -1; }
 
-        // respawn at bottom when drifted off top
-        if (s.y < -20) {
-          s.y = H + 10;
-          s.x = spawnX();
-        }
-        if (s.x < -20) s.x = W + 10;
-        if (s.x > W + 20) s.x = -10;
+        if (p.y < -10) { p.y = H + 5; p.x = spawnX(); }
+        if (p.x < -10) { p.x = W + 5; }
+        if (p.x > W + 10) { p.x = -5; }
 
-        drawSpark(s);
+        // glowing halo — identical to homepage
+        const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3);
+        grd.addColorStop(0, `oklch(0.78 0.13 85 / ${p.alpha})`);
+        grd.addColorStop(0.4, `oklch(0.78 0.13 85 / ${p.alpha * 0.5})`);
+        grd.addColorStop(1, `oklch(0.78 0.13 85 / 0)`);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+
+        // solid core
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `oklch(0.88 0.10 85 / ${p.alpha})`;
+        ctx.fill();
       }
 
-      animId = requestAnimationFrame(tick);
+      animId = requestAnimationFrame(draw);
     };
 
     resize();
-    tick();
+    draw();
 
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
