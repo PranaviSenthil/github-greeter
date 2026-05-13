@@ -1,0 +1,44 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "fJZwA-rYSqpA4Jy4VasIw"
+uri = "file://attached_assets/stock_images/maison-noir.jpg"
+type = "image"
+title = "Indian luxury boutique hotel lobby dark dramatic interior Hyderabad elegant"
+
+[[outputs]]
+id = "CvcuF5YvZrL4LQmrWMHCD"
+uri = "file://attached_assets/stock_images/aurora-penthouse.jpg"
+type = "image"
+title = "luxurious Indian penthouse interior marble columns gold accents Mumbai high-rise"
+
+[[outputs]]
+id = "pK2iJqc7Y1uvF1uTyyMRP"
+uri = "file://attached_assets/stock_images/harbor-atelier.jpg"
+type = "image"
+title = "India luxury executive office interior teak wood panels dark elegant Bengaluru"
+
+[[outputs]]
+id = "xbA_bTODoYqcnUdrlis5K"
+uri = "file://attached_assets/stock_images/obsidian-table.jpg"
+type = "image"
+title = "India fine dining luxury restaurant interior dark moody atmospheric Mumbai"
+
+[[outputs]]
+id = "fcr0b2DqwZAnnO5MqH427"
+uri = "file://attached_assets/stock_images/alpine-refuge.jpg"
+type = "image"
+title = "Indian luxury bedroom interior warm Udaipur palace hotel traditional ornate"
+
+[[outputs]]
+id = "PZdT83jZYnZFTY8enarco"
+uri = "file://attached_assets/stock_images/atelier-blanc.jpg"
+type = "image"
+title = "India contemporary luxury living room interior minimal white New Delhi apartment"
+
+[[outputs]]
+id = "-4cbZ2JRDzXYrjhUvwWSa"
+uri = "file://attached_assets/stock_images/after-india.jpg"
+type = "image"
+title = "stunning Indian luxury interior after renovation transformation living room"
