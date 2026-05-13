@@ -1,10 +1,157 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { categories, projects, type ProjectCategory } from "@/data/projects";
 import { LazyImage } from "@/components/animation/LazyImage";
 import { ProjectCard } from "./ProjectCard";
+
+// ─── Golden spark canvas (side areas only) ────────────────────────────────────
+function SparkCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let W = 0, H = 0;
+
+    // Width of the centered marquee container (960px), so side areas = (W - 960) / 2
+    const MARQUEE_W = 960;
+
+    type Spark = {
+      x: number; y: number;
+      vx: number; vy: number;
+      size: number;
+      alpha: number;
+      alphaDir: number;
+      alphaSpeed: number;
+      rot: number;
+      rotSpeed: number;
+    };
+
+    const SPARK_COUNT = 55;
+    let sparks: Spark[] = [];
+    const rand = (a: number, b: number) => Math.random() * (b - a) + a;
+
+    // Place sparks only in side strips
+    const spawnX = (): number => {
+      const sideW = Math.max(0, (W - MARQUEE_W) / 2);
+      if (sideW < 20) return rand(0, W); // if no room, scatter anywhere
+      return Math.random() < 0.5
+        ? rand(0, sideW)                  // left strip
+        : rand(W - sideW, W);             // right strip
+    };
+
+    const initSpark = (): Spark => ({
+      x: spawnX(),
+      y: rand(0, H),
+      vx: rand(-0.12, 0.12),
+      vy: rand(-0.6, -0.18),
+      size: rand(2.5, 6),
+      alpha: rand(0.1, 0.65),
+      alphaDir: Math.random() > 0.5 ? 1 : -1,
+      alphaSpeed: rand(0.004, 0.012),
+      rot: rand(0, Math.PI),
+      rotSpeed: rand(-0.015, 0.015),
+    });
+
+    const drawSpark = (s: Spark) => {
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rot);
+
+      // outer glow
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, s.size * 4);
+      glow.addColorStop(0, `oklch(0.82 0.13 85 / ${s.alpha * 0.9})`);
+      glow.addColorStop(0.5, `oklch(0.78 0.13 85 / ${s.alpha * 0.3})`);
+      glow.addColorStop(1, `oklch(0.78 0.13 85 / 0)`);
+      ctx.beginPath();
+      ctx.arc(0, 0, s.size * 4, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+
+      // 4-point star
+      const r = s.size;
+      const inner = r * 0.28;
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4 - Math.PI / 2;
+        const radius = i % 2 === 0 ? r : inner;
+        const px = Math.cos(angle) * radius;
+        const py = Math.sin(angle) * radius;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fillStyle = `oklch(0.9 0.10 85 / ${s.alpha})`;
+      ctx.fill();
+
+      // bright centre dot
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.18, 0, Math.PI * 2);
+      ctx.fillStyle = `oklch(0.97 0.06 85 / ${Math.min(1, s.alpha * 1.4)})`;
+      ctx.fill();
+
+      ctx.restore();
+    };
+
+    const resize = () => {
+      W = canvas.offsetWidth;
+      H = canvas.offsetHeight;
+      canvas.width = W;
+      canvas.height = H;
+      sparks = Array.from({ length: SPARK_COUNT }, initSpark);
+    };
+
+    const tick = () => {
+      ctx.clearRect(0, 0, W, H);
+
+      for (const s of sparks) {
+        s.x += s.vx;
+        s.y += s.vy;
+        s.rot += s.rotSpeed;
+        s.alpha += s.alphaDir * s.alphaSpeed;
+
+        if (s.alpha <= 0.05) { s.alpha = 0.05; s.alphaDir = 1; }
+        if (s.alpha >= 0.70) { s.alpha = 0.70; s.alphaDir = -1; }
+
+        // respawn at bottom when drifted off top
+        if (s.y < -20) {
+          s.y = H + 10;
+          s.x = spawnX();
+        }
+        if (s.x < -20) s.x = W + 10;
+        if (s.x > W + 20) s.x = -10;
+
+        drawSpark(s);
+      }
+
+      animId = requestAnimationFrame(tick);
+    };
+
+    resize();
+    tick();
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      ro.disconnect();
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+    />
+  );
+}
 
 // ─── Card used inside marquee rows ────────────────────────────────────────────
 function MarqueeCard({ project }: { project: (typeof projects)[0] }) {
@@ -42,7 +189,6 @@ function MarqueeCard({ project }: { project: (typeof projects)[0] }) {
 }
 
 // ─── Single infinite marquee row ──────────────────────────────────────────────
-// Container is exactly 3 cards wide (3×300 + 2×20 = 940px) with overflow-hidden
 function MarqueeRow({
   items,
   direction,
@@ -55,9 +201,7 @@ function MarqueeRow({
   const doubled = [...items, ...items];
 
   return (
-    // outer: clips to ~3 cards wide, centered
-    <div className="mx-auto w-full max-w-[960px] overflow-hidden rounded-2xl relative group">
-      {/* scrolling track */}
+    <div className="mx-auto w-full max-w-[960px] overflow-hidden rounded-2xl relative group z-10">
       <div
         className="flex gap-5 w-max group-hover:[animation-play-state:paused]"
         style={{
@@ -68,21 +212,23 @@ function MarqueeRow({
           <MarqueeCard key={`${project.slug}-${i}`} project={project} />
         ))}
       </div>
-
-      {/* soft edge fades */}
       <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-charcoal to-transparent z-10" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-charcoal to-transparent z-10" />
     </div>
   );
 }
 
-// ─── Two-row marquee section (All Works only) ─────────────────────────────────
+// ─── Two-row marquee + side sparks ────────────────────────────────────────────
 function MarqueeSection({ items }: { items: typeof projects }) {
   const row2 = useMemo(() => [...items].reverse(), [items]);
   const duration = Math.max(25, items.length * 4);
+  const reduce = useReducedMotion();
 
   return (
-    <div className="mt-10 flex flex-col gap-5">
+    <div className="relative mt-10 flex flex-col gap-5 py-4">
+      {/* sparks live behind everything, filling the full section width */}
+      {!reduce && <SparkCanvas />}
+
       <MarqueeRow items={items} direction="right" duration={duration} />
       <MarqueeRow items={row2} direction="left" duration={duration} />
     </div>
@@ -128,7 +274,6 @@ export function PortfolioGrid() {
 
   return (
     <div className="mt-12">
-      {/* Filter tabs */}
       <div className="flex flex-wrap items-center gap-2">
         {categories.map((c) => {
           const active = c.id === filter;
@@ -148,7 +293,6 @@ export function PortfolioGrid() {
         })}
       </div>
 
-      {/* Marquee for "All Works", static grid for category filters */}
       {filter === "all" ? (
         <MarqueeSection items={filtered} />
       ) : (
