@@ -101,6 +101,14 @@
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+@keyframes portfolioRight {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0%); }
+}
+@keyframes portfolioLeft {
+  from { transform: translateX(0%); }
+  to   { transform: translateX(-50%); }
+}
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
